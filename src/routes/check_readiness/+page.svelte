@@ -6,5 +6,6 @@
 </script>
 
 <h1>
-    Check Readiness
+    Check Readiness is
+    {data.ready ? 'Ready!!' : 'Not Ready!!'}
 </h1>

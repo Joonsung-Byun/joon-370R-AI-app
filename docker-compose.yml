@@ -1,3 +1,5 @@
+#docker compose syntax
+
 services:
   weaviate: # Service name
     command:
@@ -7,13 +9,13 @@ services:
     - '8080'
     - --scheme
     - http
-    image: cr.weaviate.io/semitechnologies/weaviate:1.28.2 # docker image that we pull from docker hub and use
+    image: cr.weaviate.io/semitechnologies/weaviate:1.28.3 # docker image that we pull from docker hub and use
     ports:
     - 8080:8080
     - 50051:50051
     volumes:
     - weaviate_data:/var/lib/weaviate
-    restart: on-failure:0
+    restart: on-failure:0 # when the server is down, it will not restart automatically
     environment:
       QUERY_DEFAULTS_LIMIT: 25
       AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
@@ -23,3 +25,4 @@ services:
       CLUSTER_HOSTNAME: 'node1'
 volumes:
   weaviate_data:
+  
