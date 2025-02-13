@@ -3,9 +3,8 @@
     
 let systemPrompts = [
         'Helpful Assistant',
-        'Emoji Pirate',
-        'Web Development Instructor',
-        'Physics Tutor',
+        'Sensitive Assistant',
+        'Dad Assistant',
     ];
 
     let examplePrompts = [

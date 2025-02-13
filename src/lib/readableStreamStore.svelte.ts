@@ -6,6 +6,7 @@ export function readableStreamStore() {
         loading = true;
         text = "";
         
+        console.log(request)
         try {
             const result = await fetch(request);
             
