@@ -3,4 +3,4 @@
 
 So far, basic chat feature works. Please wait for this to have RAG feature, too!
 
-CHAT URL: 
+CHAT URL: https://joon-370-r-ai-app.vercel.app/chat
