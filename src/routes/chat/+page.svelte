@@ -2,24 +2,34 @@
 	import { Avatar } from '@skeletonlabs/skeleton-svelte';
 	import TypingIndicator from '$lib/utils/typingIndicator.svelte';
 	import { readableStreamStore } from '$lib/readableStreamStore.svelte';
-	import { marked } from 'marked';
+	import { Marked } from 'marked';
+	import { markedHighlight } from 'marked-highlight';
 	import DOMPurify from 'dompurify';
 	import ChatAppBar from '$lib/components/ChatAppBar.svelte';
 	import FileUploadAside from '$lib/components/FileUploadAside.svelte';
-
-	/* 	import hljs from 'highlight.js';
+	import HistoryAside from '$lib/components/HistoryAside.svelte';
+	import hljs from 'highlight.js';
 	import javascript from 'highlight.js/lib/languages/javascript';
 	import typescript from 'highlight.js/lib/languages/typescript';
 	import css from 'highlight.js/lib/languages/css';
+	import TextareaForm from '$lib/components/TextareaForm.svelte';
+
 	hljs.registerLanguage('javascript', javascript);
 	hljs.registerLanguage('typescript', typescript);
-	hljs.registerLanguage('css', css) */
+	hljs.registerLanguage('css', css);
 
-	//type MessageBody = { chats: { role: 'user' | 'assistant'; content: string }[] };
+	const marked = new Marked(
+		markedHighlight({
+			langPrefix: 'hljs language-',
+			highlight: (code, lang) => {
+				const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+				return hljs.highlight(code, { language }).value;
+			}
+		})
+	)
 
-	let systemPrompt = $state('');
-	let examplePrompt = $state('');
-	let deepSeek = $state(false);
+	let systemPrompt = $state<string>([ 'Helpful Assistant', 'Sensitive Assistant', 'Dad Assistant'] [0]);
+	let examplePrompt = $state<string>('');
 
 	let chatHistory = $state(
 		typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('chatHistory') || '[]') : []
@@ -45,8 +55,8 @@
 		if (response.text !== '') {
 			(async () => {
 				// Strip <think> tags from the response text
-				const cleanedText = stripThinkTags(response.text);
-				const parsedText = await marked.parse(cleanedText);
+				//const cleanedText = stripThinkTags(response.text);
+				const parsedText = await marked.parse(response.text);
 				responseText = DOMPurify.sanitize(parsedText)
 					.replace(/<script>/g, '&lt;script&gt;')
 					.replace(/<\/script>/g, '&lt;/script&gt;');
@@ -54,10 +64,15 @@
 		}
 	});
 
+	function deleteAllChats():void {
+		chatHistory = [];
+	}
+
 	async function handleSubmit(this: HTMLFormElement, event: Event) {
 		event?.preventDefault();
 		if (response.loading) return; // prevent request while waiting for response
-
+		
+		console.log(this)
 		const formData: FormData = new FormData(this);
 		const message = formData.get('message');
 
@@ -76,8 +91,7 @@
 					},
 					body: JSON.stringify({
 						chats: chatHistory,
-						systemPrompt,
-						deepSeek
+						systemPrompt
 					})
 				})
 			);
@@ -87,8 +101,8 @@
 			const answerText = (await answer) as string;
 
 			const parsedAnswer = await marked.parse(answerText);
-			const cleanedAnswer = stripThinkTags(parsedAnswer);
-			const purifiedText = DOMPurify.sanitize(cleanedAnswer)
+			//const cleanedAnswer = stripThinkTags(parsedAnswer);
+			const purifiedText = DOMPurify.sanitize(parsedAnswer)
 				.replace(/<script>/g, '&lt;script&gt;')
 				.replace(/<\/script>/g, '&lt;/script&gt;');
 
@@ -102,48 +116,43 @@
 		}
 	}
 
-	function deleteAllChats() {
-		chatHistory = [];
-	}
+
 </script>
 
-<main class="flex min-h-screen w-screen flex-col items-center bg-primary-50-950">
+<main class="flex min-h-screen flex-col items-center bg-surface-950 w-full">
 	<!-- The app bar for this page -->
-	<ChatAppBar
-		bind:selectedSystemPrompt={systemPrompt}
-		bind:selectedExamplePrompt={examplePrompt}
-		bind:deepSeek
-	/>
+	<ChatAppBar bind:selectedSystemPrompt={systemPrompt} />
 
-	<div class="flex w-full">
-		<FileUploadAside />
-		<form
-			onsubmit={handleSubmit}
-			class="m-4 flex w-full max-w-7xl flex-col rounded-md border-2 border-primary-500 p-2"
-		>
-			<div class="space-y-4">
-				<div class="flex space-x-2">
+	<div class="grid xl:grid-cols-[13%_87%] w-full">
+
+		<HistoryAside />
+		<form onsubmit={handleSubmit} class="m-4 flex flex-col rounded-md mt-20 p-2">
+			<div class="">
+				<div class="flex items-start space-x-2 mb-4">
 					<Avatar src="/img-tutor-girl.jpg" name="Tutor girl image" />
-					<div class="assistant-chat">Hello! How can I help you?</div>
+					<div class="assistant-chat mt-2">
+						Hello! How can I help you?
+					</div>
 				</div>
 				<!-- Need to display each chat item here -->
 				{#each chatHistory as chat, i}
 					{#if chat.role === 'user'}
-						<div class="ml-auto flex justify-end">
+						<div class="ml-auto flex justify-end items-start gap-3 mb-8 max-w-[70vw]">
+							<div class="user-chat mt-2">
+								{chat.content}
+							</div>
 							<div>
 								<Avatar src="/student.png" name="User image" />
 							</div>
-							<div class="user-chat">
-								{chat.content}
-							</div>
+
 						</div>
 						<!-- this else handles the assistant role chat display -->
 					{:else}
-						<div class="mr-auto flex">
+						<div class="mr-auto flex items-start gap-3 mb-8 max-w-[70vw] ">
 							<div>
 								<Avatar src="/img-tutor-girl.jpg" name="Tutor girl image" />
 							</div>
-							<div class="assistant-chat">
+							<div class="assistant-chat mt-2">
 								{@html chat.content}
 							</div>
 						</div>
@@ -155,7 +164,7 @@
 						<div class="flex">
 							<div class="flex space-x-2">
 								<Avatar name="tutor girl image" src={'/img-tutor-girl.jpg'} />
-								<div class="assistant-chat">
+								<div class="assistant-chat max-w-[70vw]">
 									{#if response.text === ''}
 										<TypingIndicator />
 									{:else}
@@ -167,36 +176,24 @@
 					{/await}
 				{/if}
 				<div class="space-y-4">
-					<hr />
-					<div class="flex space-x-4">
-						<textarea
-							class="textarea"
-							required
-							placeholder="Type your message..."
-							name="message"
-							rows="3"
-							bind:value={examplePrompt}
-						></textarea>
-						<div class="flex flex-col justify-between">
-							<button type="submit" class="btn preset-filled-primary-500">Send</button>
-							<button type="button" class="btn preset-filled-secondary-500" onclick={deleteAllChats}
-								>Clear Chats</button
-							>
-						</div>
-					</div>
+					<hr class="mt-6"/>
+						<TextareaForm bind:typedExamplePrompt={examplePrompt}
+						 propsChatHistory={chatHistory} 
+						 propsDeleteAllChat={deleteAllChats}/>
 				</div>
 			</div>
 		</form>
 	</div>
+	
 </main>
 
 <style lang="postcss">
 	.assistant-chat {
-		@apply rounded-lg bg-primary-100 p-2;
+		@apply rounded-lg bg-slate-700 p-3 text-white border border-slate-50 ;
 	}
 
 	.user-chat {
-		@apply rounded-lg bg-surface-200 p-2;
+		@apply rounded-lg bg-surface-700 p-3 text-white border border-surface-50;
 	}
 
 	.assistant-chat :global {
@@ -207,13 +204,13 @@
 			@apply ml-4 list-inside list-disc;
 		}
 		/* Code blocks */
-		pre {
+		/* 	pre {
 			@apply my-4 overflow-x-auto rounded-lg bg-surface-700 p-4;
 		}
 		code {
 			@apply rounded bg-surface-100 px-1 py-0.5 font-mono;
 		}
-
+ */
 		/* Headers */
 		h1 {
 			@apply mb-4 text-2xl font-bold;

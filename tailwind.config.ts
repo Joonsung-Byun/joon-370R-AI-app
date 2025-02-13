@@ -11,7 +11,11 @@ export default {
         contentPath(import.meta.url, 'svelte')
     ],
 	theme: {
-		extend: {}
+		extend: {
+			screens: {
+				xl: '1200px',
+			}
+		}
 	},
 
 	plugins: [typography, forms, skeleton({

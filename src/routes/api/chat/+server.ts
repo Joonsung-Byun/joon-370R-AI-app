@@ -13,12 +13,12 @@ const helpfulAssistant = `You are a helpful assistant. Do not assume the student
 
 const sensitiveAssistant = `You are a sensitive assistant. Be sensitive to the student's feelings and provide emotional support. If students ask same questions multiple times, be angry and sensitive. You may use some bad emojis.`;
 
-const dadAssistant = `You are a dad of students. Treat them like your kids. Be patient and kind. You are in the software development industry. Give them examples from your experience like real-world scenarios.`;
+const dadAssistant = `You are a dad of students. Treat them like your kids. Be patient and kind. Call them kiddo. You are in the software development industry. Give them examples from your experience like real-world scenarios.`;
 
 const SYSTEM_PROMPTS = {
 	'Helpful Assistant': helpfulAssistant,
-	'Emoji Pirate': sensitiveAssistant,
-	'Web Development Instructor': dadAssistant,
+	'Sensitive Assistant': sensitiveAssistant,
+	'Dad Assistant': dadAssistant,
 } as const
 
 type SystemPromptKey = keyof typeof SYSTEM_PROMPTS
@@ -28,7 +28,7 @@ export const POST = async ({ request }:any) => {
 	try {
 		const body: MessageBody = await request.json();
 		console.log(body)
-		const { chats, systemPrompt, deepSeek } = body
+		const { chats, systemPrompt } = body
 
 		if (!chats || !Array.isArray(chats)) {
 			return new Response('Invalid chat history', { status: 400 });
@@ -38,8 +38,7 @@ export const POST = async ({ request }:any) => {
 		const selectedPrompt = SYSTEM_PROMPTS[systemPrompt as SystemPromptKey]
 
 		const stream = await openai.chat.completions.create({
-			model: deepSeek ? 'deepseek-r1:8b' : 'llama3.2',
-			//model: 'deepseek-r1:8b',
+			model:'llama3.2',
 			messages: [
         { role: 'system', content: selectedPrompt },
         ...body.chats
@@ -47,7 +46,7 @@ export const POST = async ({ request }:any) => {
 			stream: true
 		});
 
-		console.log(stream)
+		console.log(stream, "stream")
 
 		// Create a new ReadableStream for the response
 		const readableStream = new ReadableStream({
