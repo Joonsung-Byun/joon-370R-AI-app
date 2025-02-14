@@ -10,14 +10,68 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const uploadPath = process.env.NODE_ENV === 'production' ? '/uploads' : path.resolve(__dirname, '../../uploads')
 
+// export const actions = {
+//     uploadFile: async ({ request }: { request: Request }) => {
+//         const formData = await request.formData();
+//         console.log(formData);
+//         const uploadedFile = formData?.get('file') as unknown as File | undefined
+
+//         if (!uploadedFile) {
+//             console.log('No file uploaded')
+//             return {
+//                 status: 400,
+//                 body: {
+//                     error: 'No file uploaded'
+//                 }
+//             }
+//         }
+
+//         try {
+//             const fileBuffer = await uploadedFile.arrayBuffer();
+            
+//             const readableStream = new Readable()
+//             readableStream.push(Buffer.from(fileBuffer))
+//             readableStream.push(null)
+
+//             // Delete all existing files in the uploads directory
+//             const files = await fsPromises.readdir(uploadPath)
+//             for (const file of files ) {
+//                 await fsPromises.unlink(path.join(uploadPath, file))
+//             }
+
+//             const timeStampSuffix = Date.now();
+// 			const fileNameOnly = uploadedFile.name.replace('.pdf', '');
+// 			const uploadedFilePath = path.join(uploadPath, `${fileNameOnly}-${timeStampSuffix}.pdf`);
+
+// 			await pipeline(readableStream, fs.createWriteStream(uploadedFilePath));
+
+//             console.log('File uploaded')
+
+//             return {
+// 				status: 200,
+// 				success: 'File uploaded and processed successfully.',
+// 			};
+//         }
+//         catch (e) {
+//             return {
+//                 status: 500,
+//                 body: {
+//                     error: 'Failed to upload file'
+//                 }
+//             }
+//         }
+//     }
+
+
+// } as Actions
+
 export const actions = {
+
     uploadFile: async ({ request }: { request: Request }) => {
         const formData = await request.formData();
-        console.log(formData);
         const uploadedFile = formData?.get('file') as unknown as File | undefined
 
         if (!uploadedFile) {
-            console.log('No file uploaded')
             return {
                 status: 400,
                 body: {
@@ -28,31 +82,27 @@ export const actions = {
 
         try {
             const fileBuffer = await uploadedFile.arrayBuffer();
+            // Buffer is a box of countless bytes (data)
+            // and I'm going to declare a readable stream and push the buffer into it
             
             const readableStream = new Readable()
             readableStream.push(Buffer.from(fileBuffer))
             readableStream.push(null)
-
+            
             // Delete all existing files in the uploads directory
             const files = await fsPromises.readdir(uploadPath)
             for (const file of files ) {
                 await fsPromises.unlink(path.join(uploadPath, file))
             }
 
-            const timeStampSuffix = Date.now();
-			const fileNameOnly = uploadedFile.name.replace('.pdf', '');
-			const uploadedFilePath = path.join(uploadPath, `${fileNameOnly}-${timeStampSuffix}.pdf`);
+            await pipeline(readableStream, fs.createWriteStream(path.join(uploadPath, uploadedFile.name)))
 
-			await pipeline(readableStream, fs.createWriteStream(uploadedFilePath));
+            
 
-            console.log('File uploaded')
 
-            return {
-				status: 200,
-				success: 'File uploaded and processed successfully.',
-			};
-        }
-        catch (e) {
+
+
+        } catch (e) {
             return {
                 status: 500,
                 body: {
@@ -60,7 +110,7 @@ export const actions = {
                 }
             }
         }
+
+        return {status: 'ok'}
     }
-
-
 } as Actions

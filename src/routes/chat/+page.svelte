@@ -123,7 +123,7 @@
 	<!-- The app bar for this page -->
 	<ChatAppBar bind:selectedSystemPrompt={systemPrompt} />
 
-	<div class="grid xl:grid-cols-[13%_87%] w-full">
+	<div class="grid xl:grid-cols-[18%_82%] w-full">
 
 		<HistoryAside />
 		<form onsubmit={handleSubmit} class="m-4 flex flex-col rounded-md mt-20 p-2">

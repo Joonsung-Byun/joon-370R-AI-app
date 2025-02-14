@@ -2,14 +2,49 @@
 	let examplePrompt = ['Helpful Assistant', 'Sensitive Assistant', 'Dad Assistant'];
 	let { typedExamplePrompt = $bindable(examplePrompt), propsChatHistory, propsDeleteAllChat } = $props<{ typedExamplePrompt?: string, propsChatHistory?:string[], propsDeleteAllChat?:any }>();
 
+	let fileUploaded = $state(false);
+	let uploadedFileName = $state('');
+	let file:any
 
-	// function deleteAllChats() {
-	// 	chatHistory = [];
-	// }
+	function handleFileChange(event: Event) {
+		event.preventDefault();
+		const fileInput = event.target as HTMLInputElement;
+		file = fileInput.files?.[0];
+		if (file) {
+			uploadedFileName = file.name;
+			fileUploaded = true;
+		}
+    }
+
+	function handleFileSubmit(event: Event) {
+		event.preventDefault()
+		const formData = new FormData();
+		formData.append('file', file);
+		console.log(formData.get('file'));
+		fetch('/chat?/uploadFile', {
+			method: 'POST',
+			body: formData
+		})
+
+	}
+
+	function handleClick(event: Event) {
+		event.preventDefault();
+		if(typeof window !== undefined) {
+			const fileInput = document.querySelector('#fileInput') as HTMLInputElement;
+			console.log(fileInput);
+			fileInput.click();
+		}
+	}
 </script>
 
 <div class="mx-auto max-w-[1000px] p-4">
 	<div class="relative">
+		<div id="uploadedFile" class="text-sm text-gray-400">
+			{#if fileUploaded}
+				{uploadedFileName} <button class="p-2 bg-primary-300" onclick={handleFileSubmit}>Upload</button>
+			{/if}
+		</div>
 		<textarea
             bind:value={typedExamplePrompt}
 			class="min-h-[60px] w-full resize-none rounded-xl border-gray-300 bg-transparent p-3 pr-32 text-white focus:border-gray-400 focus:ring-gray-400"
@@ -18,9 +53,16 @@
 		></textarea>
 		<div class="absolute bottom-2 right-2 flex items-center gap-2 p-1">
 			<!-- File Upload Button -->
-			<button
-				class="flex h-9 w-9 items-center justify-center rounded-full  p-2 hover:bg-gray-700"
-			>
+			<div class="hidden" >
+				<label class="label">
+					<span class="label-text">Select a file</span>
+					<input class="input" type="file" accept=".pdf" name="file" id="fileInput" onchange={handleFileChange}/>
+				</label>
+				<button class="btn preset-filled-primary-200-800" type="submit">Upload chosen file</button>
+			</div>
+
+			<button class="flex h-9 w-9 items-center justify-center rounded-full  p-2 hover:bg-gray-700"
+			onclick="{handleClick}">
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					viewBox="0 0 24 24"
@@ -38,23 +80,25 @@
 			</button>
 
 			<!-- Send Button -->
-			<button type="submit" class="flex h-8 w-8 items-center justify-center text-white hover:rounded-full hover:bg-gray-700 hover:text-white">
+
+			  
+			  <button class="flex h-8 w-8 items-center justify-center text-white hover:rounded-full hover:bg-gray-700 hover:text-white">
 				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					width="16"
-					height="16"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					stroke-width="2"
-					stroke-linecap="round"
-					stroke-linejoin="round"
+				  xmlns="http://www.w3.org/2000/svg"
+				  width="16"
+				  height="16"
+				  viewBox="0 0 24 24"
+				  fill="none"
+				  stroke="currentColor"
+				  stroke-width="2"
+				  stroke-linecap="round"
+				  stroke-linejoin="round"
 				>
-					<line x1="22" y1="2" x2="11" y2="13" />
-					<polygon points="22 2 15 22 11 13 2 9 22 2" />
+				  <line x1="22" y1="2" x2="11" y2="13" />
+				  <polygon points="22 2 15 22 11 13 2 9 22 2" />
 				</svg>
 				<span class="sr-only">Send message</span>
-			</button>
+			  </button>
 		</div>
 	</div>
 
