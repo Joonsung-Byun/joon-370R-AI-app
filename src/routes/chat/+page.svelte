@@ -80,22 +80,44 @@
 		chatHistory = []
 	}
 
-			function deleteFileName(fileName: string) {
-				fileNames = fileNames.filter((name) => name !== fileName)
-				fetch('/api/chat', {
-					method: 'DELETE',
-					headers: {
-						'Content-Type': 'application/json'
-					},
-					body: JSON.stringify({
-						fileName: fileName
-					})
+	function deleteFileName(fileName: string) {
+		fileNames = fileNames.filter((name) => name !== fileName)
+		fetch('/api/chat', {
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				fileName: fileName,
+				role: 'deleteOne'
+			})
+		})
+			.then((res) => res.json())
+			.then((data) => {
+				console.log(data)
+			})
+	}
+
+	if (typeof window !== 'undefined') {
+		window.addEventListener('beforeunload', () => {
+			if(fileNames.length > 0) {
+			fetch('/api/chat', {
+				method: 'DELETE',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					fileNames: fileNames,
+					role: 'deleteAll'
 				})
+			})
 				.then((res) => res.json())
 				.then((data) => {
 					console.log(data)
 				})
 			}
+		})
+	}
 
 	async function handleSubmit(this: HTMLFormElement, event: Event) {
 		event?.preventDefault()
@@ -136,7 +158,7 @@
 				.replace(/<script>/g, '&lt;script&gt;')
 				.replace(/<\/script>/g, '&lt;/script&gt;')
 
-			function removeNewlines(str:string) {
+			function removeNewlines(str: string) {
 				return str.replace(/\\n/g, '')
 			}
 
@@ -194,7 +216,7 @@
 									{#if response.text === ''}
 										<TypingIndicator />
 									{:else}
-										{@html (responseText)}
+										{@html responseText}
 									{/if}
 								</div>
 							</div>
@@ -218,10 +240,10 @@
 					help you.
 				</p>
 				{#if fileNames.length > 0}
-					<div class="flex justify-start flex-wrap items-center gap-7">
+					<div class="flex flex-wrap items-center justify-start gap-7">
 						{#each fileNames as fileName}
 							<div class="flex items-center gap-4">
-								<button type="button" class="btn text-white preset-filled-primary-500 relative">
+								<button type="button" class="btn relative text-white preset-filled-primary-500">
 									<span>{fileName}</span>
 									<CircleX onclick={() => deleteFileName(fileName)} />
 								</button>

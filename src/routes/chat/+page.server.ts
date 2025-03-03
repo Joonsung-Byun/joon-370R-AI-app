@@ -9,6 +9,7 @@ import { WebPDFLoader } from '@langchain/community/document_loaders/web/pdf';
 import type { WeaviateClient } from 'weaviate-client';
 import weaviate from 'weaviate-client';
 import type { ChunkObject } from '$lib/types/ChunkObject';
+
 const OPTIMAL_CHUNK_SIZE = 400  // tokens
 const CHUNK_OVERLAP = 50
 const CHARS_PER_TOKEN = 4 // Average for Llama-friendly models (emprically determined)

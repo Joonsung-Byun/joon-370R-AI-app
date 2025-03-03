@@ -1,0 +1,33 @@
+{
+  "totalChunks": 3,
+  "timsstamp": "2025-03-03T07:32:40.489Z",
+  "chunks": [
+    {
+      "text": "Joonsung Byun\nFULL-STACK ENGINNER\nOrem, Utah, 84058gmmicky1026@gmail.com801-822-6812\nPortfolio\nEDUCATION\nUTAH VALLEY UNIVERSITY\nCumulative GPA: 3.85\nExpected Graduation: April, 2025\nAwards & Honors: Dean’s List 2024 Spring, 2023 Fall, 2023 Spring, 2023 International Academic Scholarship        \nSKILLS\nReact js, Node.js, Express.js, Next.js, Svelte, SvelteKit, Supabase DB, Mongo DB, ES6 JavaScript, EJS, \n\nTailwind CSS, SASS/SCSS, HTML, CSS, Git\nCORE WORK EXPERIENCES\nUtah Valley University E2I, Innovation Academy\nKorean Institute of Information Scientists and Engineers\nUtah Valley University College of Engineering & Technology Lab\nFront-end Developer\nWeb Publisher\nWeb Development Tutor\nFEB2024-MAY2024\nMAY2024-JULY2024\nSEP2024-CURRENT\nIntegrated Axios library for API requests and implemented token storage in cookies for secure session \nmanagement. Ensured seamless communication between frontend components and backend endpoints|\nCollaborated with designers to build responsive dashboard pages optimized for desktop and mobile users. \nFocused on clean, reusable code to improve maintainability and scalability|\nWorked alongside backend developers to debug and test API interactions during development. Contributed \nto team discussions to align project requirements and resolve technical challenges.\nDesigned and developed promotional webpages for KIISE’s academic conference, successfully attracting \nover 5,000 views. Ensured the webpage effectively showcased event details to engage the target audience|\nFocused on modernizing legacy code by converting outdated HTML4 to HTML5 and CSS",
+      "fileName": "Resume-Joonsung-Byun.pdf",
+      "metadata": {
+        "totalPages": 1,
+        "pageNumberLocation": 1,
+        "chunkIndex": 0
+      }
+    },
+    {
+      "text": "y attracting \nover 5,000 views. Ensured the webpage effectively showcased event details to engage the target audience|\nFocused on modernizing legacy code by converting outdated HTML4 to HTML5 and CSS. Enhanced \nmaintainability and browser compatibility to meet current web standards|\nPrioritized clean, reusable code to facilitate future updates and edits. Ensured alignment with the \norganization’s goals through collaboration with stakeholders.\nProvided assistance and guidance to students in web development courses|\nSupported students in understanding core web development concepts and troubleshooting issues as an \nacademic web tutor.\nOUTSTANDING PERSONAL PROJECTS\nNodeTrip\nRadiance\nBuilt a full-stack travel experience sharing website for users who enjoy traveling using Express.j#\nDeveloped functionalities for liking, commenting, signing up, logging in, and posting|\nCreated an AI-powered travel plan recommendation feature on the Recommendation page using the \nOpenAI API|\nhttps://numerous-marmoset-joonsungbyun-63fac5da.koyeb.app/\nDeveloped a React-based online shopping mall site using Next.js|\nImplemented features such as a shopping cart, review comments, and social login functionality|\nLeveraged Next.js Server Components to implement server-side rendering, improving site performance and \nsearch engine optimization (SEO). Gained hands-on experience with advanced rendering techniques|\nhttps://radiancejoonsung.netlify.app/",
+      "fileName": "Resume-Joonsung-Byun.pdf",
+      "metadata": {
+        "totalPages": 1,
+        "pageNumberLocation": 1,
+        "chunkIndex": 1
+      }
+    },
+    {
+      "text": " techniques|\nhttps://radiancejoonsung.netlify.app/",
+      "fileName": "Resume-Joonsung-Byun.pdf",
+      "metadata": {
+        "totalPages": 1,
+        "pageNumberLocation": 1,
+        "chunkIndex": 2
+      }
+    }
+  ]
+}

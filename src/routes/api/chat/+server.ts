@@ -113,18 +113,30 @@ export const POST = async ({ request }: any) => {
 }
 
 export const DELETE = async ({ request }: any) => {
-	console.log('its working')
+
 	try {
 		const body = await request.json()
-		console.log(body.fileName)
+		console.log(body.role)
 
-		const myCollection = client.collections.get('Chunks')
+		if (body.role === 'deleteOne') {
+			const myCollection = client.collections.get('Chunks')
 
-		const response = await myCollection.data.deleteMany(
-			myCollection.filter.byProperty('file_name').like(body.fileName)
-		)
+			const response = await myCollection.data.deleteMany(
+				myCollection.filter.byProperty('file_name').like(body.fileName)
+			)
 
-		console.log(JSON.stringify(response))
+			console.log(JSON.stringify(response))
+		} else if(body.role === 'deleteAll') {
+			const myCollection = client.collections.get('Chunks')
+
+			for (const fileName of body.fileNames) {
+				const response = await myCollection.data.deleteMany(
+					myCollection.filter.byProperty('file_name').like(fileName)
+				)
+				console.log(JSON.stringify(response))
+			}
+			console.log("All chunks deleted")
+		}
 
 		return new Response(JSON.stringify({ message: 'Successfully deleted' }), { status: 200, headers: { 'Content-Type': 'application/json' } })
 	} catch (error) {
