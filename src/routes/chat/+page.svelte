@@ -98,26 +98,26 @@
 			})
 	}
 
-	if (typeof window !== 'undefined') {
-		window.addEventListener('beforeunload', () => {
-			if(fileNames.length > 0) {
-			fetch('/api/chat', {
-				method: 'DELETE',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					fileNames: fileNames,
-					role: 'deleteAll'
-				})
-			})
-				.then((res) => res.json())
-				.then((data) => {
-					console.log(data)
-				})
-			}
-		})
-	}
+	// if (typeof window !== 'undefined') {
+	// 	window.addEventListener('beforeunload', () => {
+	// 		if(fileNames.length > 0) {
+	// 		fetch('/api/chat', {
+	// 			method: 'DELETE',
+	// 			headers: {
+	// 				'Content-Type': 'application/json'
+	// 			},
+	// 			body: JSON.stringify({
+	// 				fileNames: fileNames,
+	// 				role: 'deleteAll'
+	// 			})
+	// 		})
+	// 			.then((res) => res.json())
+	// 			.then((data) => {
+	// 				console.log(data)
+	// 			})
+	// 		}
+	// 	})
+	// }
 
 	async function handleSubmit(this: HTMLFormElement, event: Event) {
 		event?.preventDefault()
