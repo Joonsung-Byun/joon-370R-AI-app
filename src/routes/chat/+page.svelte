@@ -1,86 +1,106 @@
 <script lang="ts">
-	import { Avatar } from '@skeletonlabs/skeleton-svelte';
-	import TypingIndicator from '$lib/utils/typingIndicator.svelte';
-	import { readableStreamStore } from '$lib/readableStreamStore.svelte';
-	import { Marked } from 'marked';
-	import { markedHighlight } from 'marked-highlight';
-	import DOMPurify from 'dompurify';
-	import ChatAppBar from '$lib/components/ChatAppBar.svelte';
-	import FileUploadAside from '$lib/components/FileUploadAside.svelte';
-	import HistoryAside from '$lib/components/HistoryAside.svelte';
-	import hljs from 'highlight.js';
-	import javascript from 'highlight.js/lib/languages/javascript';
-	import typescript from 'highlight.js/lib/languages/typescript';
-	import css from 'highlight.js/lib/languages/css';
-	import TextareaForm from '$lib/components/TextareaForm.svelte';
+	import { Avatar } from '@skeletonlabs/skeleton-svelte'
+	import TypingIndicator from '$lib/utils/typingIndicator.svelte'
+	import { readableStreamStore } from '$lib/readableStreamStore.svelte'
+	import { Marked } from 'marked'
+	import { markedHighlight } from 'marked-highlight'
+	import DOMPurify from 'dompurify'
+	import ChatAppBar from '$lib/components/ChatAppBar.svelte'
+	import FileUploadAside from '$lib/components/FileUploadAside.svelte'
+	import HistoryAside from '$lib/components/HistoryAside.svelte'
+	import hljs from 'highlight.js'
+	import javascript from 'highlight.js/lib/languages/javascript'
+	import typescript from 'highlight.js/lib/languages/typescript'
+	import css from 'highlight.js/lib/languages/css'
+	import TextareaForm from '$lib/components/TextareaForm.svelte'
 
-	hljs.registerLanguage('javascript', javascript);
-	hljs.registerLanguage('typescript', typescript);
-	hljs.registerLanguage('css', css);
+	if (typeof window !== 'undefined') {
+		window.addEventListener('beforeunload', () => {
+			// localstorage에 myname은 Joonsung 저장하기
+			localStorage.setItem('myname', 'Joonsung')
+		})
+	}
 
+	hljs.registerLanguage('javascript', javascript)
+	hljs.registerLanguage('typescript', typescript)
+	hljs.registerLanguage('css', css)
+
+	interface PageData {
+		fileNames: string[]
+	}
+
+	let { data } = $props<{ data: PageData }>()
 	const marked = new Marked(
 		markedHighlight({
 			langPrefix: 'hljs language-',
 			highlight: (code, lang) => {
-				const language = hljs.getLanguage(lang) ? lang : 'plaintext';
-				return hljs.highlight(code, { language }).value;
+				const language = hljs.getLanguage(lang) ? lang : 'plaintext'
+				return hljs.highlight(code, { language }).value
 			}
 		})
 	)
 
-	let systemPrompt = $state<string>([ 'Helpful Assistant', 'Sensitive Assistant', 'Dad Assistant'] [0]);
-	let examplePrompt = $state<string>('');
+	let systemPrompt = $state<string>(
+		['Helpful Assistant', 'Sensitive Assistant', 'Dad Assistant'][0]
+	)
+	let examplePrompt = $state<string>('')
+	let fileNames = $state<string[]>([])
 
 	let chatHistory = $state(
 		typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('chatHistory') || '[]') : []
-	);
+	)
+
+	function addFileName(fileName: string): void {
+		console.log('adding file name')
+		fileNames = [...fileNames, fileName]
+	}
+
+	$effect(() => {
+		if (data?.fileNames) {
+			fileNames = [...data.fileNames]
+		}
+	})
 
 	$effect(() => {
 		if (typeof window !== 'undefined') {
-			localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+			localStorage.setItem('chatHistory', JSON.stringify(chatHistory))
 		}
-	});
+	})
 
-	const response = readableStreamStore();
+	const response = readableStreamStore()
 
-	let responseText = $state('');
-
-	// Add this helper function
-	function stripThinkTags(text: string): string {
-		const thinkRegex = /<think>[\s\S]*?<\/think>/g;
-		return text.replace(thinkRegex, '');
-	}
+	let responseText = $state('')
 
 	$effect(() => {
 		if (response.text !== '') {
-			(async () => {
+			;(async () => {
 				// Strip <think> tags from the response text
 				//const cleanedText = stripThinkTags(response.text);
-				const parsedText = await marked.parse(response.text);
+				const parsedText = await marked.parse(response.text)
 				responseText = DOMPurify.sanitize(parsedText)
 					.replace(/<script>/g, '&lt;script&gt;')
-					.replace(/<\/script>/g, '&lt;/script&gt;');
-			})();
+					.replace(/<\/script>/g, '&lt;/script&gt;')
+			})()
 		}
-	});
+	})
 
-	function deleteAllChats():void {
-		chatHistory = [];
+	function deleteAllChats(): void {
+		chatHistory = []
 	}
 
 	async function handleSubmit(this: HTMLFormElement, event: Event) {
-		event?.preventDefault();
-		if (response.loading) return; // prevent request while waiting for response
-		
+		event?.preventDefault()
+		if (response.loading) return // prevent request while waiting for response
+
 		console.log(this)
-		const formData: FormData = new FormData(this);
-		const message = formData.get('message');
+		const formData: FormData = new FormData(this)
+		const message = formData.get('message')
 
 		if (!message) {
-			return;
+			return
 		}
 
-		chatHistory = [...chatHistory, { role: 'user', content: message as string }];
+		chatHistory = [...chatHistory, { role: 'user', content: message as string }]
 
 		try {
 			const answer = response.request(
@@ -91,64 +111,59 @@
 					},
 					body: JSON.stringify({
 						chats: chatHistory,
-						systemPrompt
+						systemPrompt,
+						fileNames
 					})
 				})
-			);
+			)
 
-			this.reset(); // clear the form
+			this.reset()
 
-			const answerText = (await answer) as string;
+			const answerText = (await answer) as string
 
-			const parsedAnswer = await marked.parse(answerText);
+			const parsedAnswer = await marked.parse(answerText)
 			//const cleanedAnswer = stripThinkTags(parsedAnswer);
 			const purifiedText = DOMPurify.sanitize(parsedAnswer)
 				.replace(/<script>/g, '&lt;script&gt;')
-				.replace(/<\/script>/g, '&lt;/script&gt;');
+				.replace(/<\/script>/g, '&lt;/script&gt;')
 
 			// put the answer into the chat history with role 'assistant'
 
-			chatHistory = [...chatHistory, { role: 'assistant', content: purifiedText }];
+			chatHistory = [...chatHistory, { role: 'assistant', content: purifiedText }]
 
-			console.log(answerText);
+			console.log(answerText)
 		} catch (error) {
-			console.error(error);
+			console.error(error)
 		}
 	}
-
-
 </script>
 
-<main class="flex min-h-screen flex-col items-center bg-surface-950 w-full">
+<main class="flex min-h-screen w-full flex-col items-center bg-surface-950">
 	<!-- The app bar for this page -->
 	<ChatAppBar bind:selectedSystemPrompt={systemPrompt} />
 
-	<div class="grid xl:grid-cols-[18%_82%] w-full">
-
+	<div class="grid w-full xl:grid-cols-[18%_82%]">
 		<HistoryAside />
-		<form onsubmit={handleSubmit} class="m-4 flex flex-col rounded-md mt-20 p-2">
+		<form onsubmit={handleSubmit} class="m-4 mt-20 flex flex-col rounded-md p-2">
 			<div class="">
-				<div class="flex items-start space-x-2 mb-4">
+				<div class="mb-4 flex items-start space-x-2">
 					<Avatar src="/img-tutor-girl.jpg" name="Tutor girl image" />
-					<div class="assistant-chat mt-2">
-						Hello! How can I help you?
-					</div>
+					<div class="assistant-chat mt-2">Hello! How can I help you?</div>
 				</div>
 				<!-- Need to display each chat item here -->
 				{#each chatHistory as chat, i}
 					{#if chat.role === 'user'}
-						<div class="ml-auto flex justify-end items-start gap-3 mb-8 max-w-[70vw]">
+						<div class="mb-8 ml-auto flex max-w-[70vw] items-start justify-end gap-3">
 							<div class="user-chat mt-2">
 								{chat.content}
 							</div>
 							<div>
 								<Avatar src="/student.png" name="User image" />
 							</div>
-
 						</div>
 						<!-- this else handles the assistant role chat display -->
 					{:else}
-						<div class="mr-auto flex items-start gap-3 mb-8 max-w-[70vw] ">
+						<div class="mb-8 mr-auto flex max-w-[70vw] items-start gap-3">
 							<div>
 								<Avatar src="/img-tutor-girl.jpg" name="Tutor girl image" />
 							</div>
@@ -176,24 +191,45 @@
 					{/await}
 				{/if}
 				<div class="space-y-4">
-					<hr class="mt-6"/>
-						<TextareaForm bind:typedExamplePrompt={examplePrompt}
-						 propsChatHistory={chatHistory} 
-						 propsDeleteAllChat={deleteAllChats}/>
+					<hr class="mt-6" />
+					<TextareaForm
+						bind:typedExamplePrompt={examplePrompt}
+						propsChatHistory={chatHistory}
+						propsDeleteAllChat={deleteAllChats}
+						{fileNames}
+						propsAddFileName={addFileName}
+					/>
 				</div>
+			</div>
+			<div class="flex w-full flex-col items-center">
+				<p class="mb-6 text-center text-sm text-surface-500">
+					You can also upload a file for additional context to chat with me. I will do my best to
+					help you.
+				</p>
+				{#if fileNames.length > 0}
+					<div class="flex flex-wrap items-center gap-4">
+						{#each fileNames as fileName}
+							<div class="flex items-center gap-2">
+								<button type="button" class="btn text-white preset-filled-primary-500">
+									<span>{fileName}</span>
+									<!-- <CircleX onclick={() => deleteFileName(fileName)} /> -->
+								</button>
+							</div>
+						{/each}
+					</div>
+				{/if}
 			</div>
 		</form>
 	</div>
-	
 </main>
 
 <style lang="postcss">
 	.assistant-chat {
-		@apply rounded-lg bg-slate-700 p-3 text-white border border-slate-50 ;
+		@apply rounded-lg border border-slate-50 bg-slate-700 p-3 text-white;
 	}
 
 	.user-chat {
-		@apply rounded-lg bg-surface-700 p-3 text-white border border-surface-50;
+		@apply rounded-lg border border-surface-50 bg-surface-700 p-3 text-white;
 	}
 
 	.assistant-chat :global {

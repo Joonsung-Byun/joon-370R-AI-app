@@ -31,9 +31,9 @@
 	};
 </script>
 
-<nav class="fixed left-0 top-[74px] z-50  xl:relative xl:z-0 xl:min-h-screen h-full xl:top-0">
+<nav class="absolute left-0 top-[74px] z-50  xl:relative xl:z-0 xl:min-h-screen h-full xl:top-0">
 	<button
-		class="fixed left-4 top-24 z-50 rounded-md bg-gray-800 p-2 text-white xl:hidden"
+		class="absolute left-4 top-[20px] z-50 rounded-md bg-gray-800 p-2 text-white xl:hidden"
 		aria-label="Toggle menu"
 		id="toggleBtn"
 		onclick={() => {

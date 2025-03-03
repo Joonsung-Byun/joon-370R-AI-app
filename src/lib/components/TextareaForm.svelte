@@ -1,6 +1,6 @@
 <script lang="ts">
 	let examplePrompt = ['Helpful Assistant', 'Sensitive Assistant', 'Dad Assistant'];
-	let { typedExamplePrompt = $bindable(examplePrompt), propsChatHistory, propsDeleteAllChat } = $props<{ typedExamplePrompt?: string, propsChatHistory?:string[], propsDeleteAllChat?:any }>();
+	let { typedExamplePrompt = $bindable(examplePrompt), propsChatHistory, propsDeleteAllChat, fileNames, propsAddFileName } = $props<{ typedExamplePrompt?: string, propsChatHistory?:string[], propsDeleteAllChat?:any, fileNames:string[],propsAddFileName:any}>();
 
 	let fileUploaded = $state(false);
 	let uploadedFileName = $state('');
@@ -16,16 +16,32 @@
 		}
     }
 
-	function handleFileSubmit(event: Event) {
+
+	async function handleFileSubmit(event: Event) {
 		event.preventDefault()
 		const formData = new FormData();
 		formData.append('file', file);
-		console.log(formData.get('file'));
-		fetch('/chat?/uploadFile', {
+		let answer= await fetch('/chat?/uploadFile', {
 			method: 'POST',
 			body: formData
 		})
 
+		// if uploading file is successful, add it to the list of fileNames
+		if (answer.ok) {
+			propsAddFileName(uploadedFileName);
+		}
+
+		//reset
+		fileUploaded = false;
+		uploadedFileName = '';
+		file = null;
+
+
+		// clear the file input
+		const fileInput = document.querySelector('#fileInput') as HTMLInputElement;
+		fileInput.value = '';
+
+		console.log('fininshed uploading file')
 	}
 
 	function handleClick(event: Event) {
