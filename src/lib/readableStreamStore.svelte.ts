@@ -30,7 +30,6 @@ export function readableStreamStore() {
 
             loading = false;
             text = "";
-            
             return finaltext;
         } catch (err: any) {
             loading = false;

@@ -47,15 +47,16 @@ export const POST = async ({ request }: any) => {
 			-Quote relevant passages when appropriate
 			-If information isn't in the documents, say so
 			-Maintain conversation context
+			-When you give an answer, do not put quotation marks in the beginning and end of the answer
 			Current question: "${chats[chats.length - 1].content}"
 			Previous context: "${chats
-				.slice(-2, -1)
-				.map((chat) => chat.content)
-				.join(' ')}"
+					.slice(-2, -1)
+					.map((chat) => chat.content)
+					.join(' ')}"
 			`
 			// get the most recent user message as the primary query
 			const currentQuery = chats[chats.length - 1].content
-				console.log(currentQuery, "currentQuery")
+			console.log(currentQuery, "currentQuery")
 			try {
 				const result = await chunksCollection.generate.nearText(
 					currentQuery,
@@ -63,11 +64,11 @@ export const POST = async ({ request }: any) => {
 					{ limit: 3 },
 				)
 
-				if(!result.generated) {
+				if (!result.generated) {
 					return new Response('I could not find specific information matching your query. Could you rephrase or be more specific? ', { status: 200 })
 				}
 
-				return new Response(JSON.stringify( result.generated ), { status: 200 })
+				return new Response(JSON.stringify(result.generated), { status: 200 })
 
 
 
@@ -112,10 +113,20 @@ export const POST = async ({ request }: any) => {
 }
 
 export const DELETE = async ({ request }: any) => {
+	console.log('its working')
 	try {
+		const body = await request.json()
+		console.log(body.fileName)
 
+		const myCollection = client.collections.get('Chunks')
 
-		return new Response('Successfully deleted', { status: 200 })
+		const response = await myCollection.data.deleteMany(
+			myCollection.filter.byProperty('file_name').like(body.fileName)
+		)
+
+		console.log(JSON.stringify(response))
+
+		return new Response(JSON.stringify({ message: 'Successfully deleted' }), { status: 200, headers: { 'Content-Type': 'application/json' } })
 	} catch (error) {
 		return new Response('Something went wrong', { status: 500 })
 	}

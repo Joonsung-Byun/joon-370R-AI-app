@@ -142,12 +142,14 @@ async function createFileDataObject(uploadedFilePath: string) {
         }
     }
 
-    await importFileChunks(chunks)
-    
+    let idArray: string[] = []
+
+    await importFileChunks(chunks, idArray)
+    // console.log(idArray)
     return { success: true }
 }
 
-async function importFileChunks(chunks: any[]) {
+async function importFileChunks(chunks: any[], idArray: string[]) {
     client = await connectToWeaviate()
     const fileChunkCollection = client.collections.get<ChunkObject>('Chunks')
 
@@ -180,6 +182,8 @@ async function importFileChunks(chunks: any[]) {
     for (const [index, batch]  of batches.entries()) {
         try {
             const result = await fileChunkCollection.data.insertMany(batch)
+            // console.log(result.allResponses)
+            idArray.push(...result.allResponses.filter((response) => typeof response === 'string') as string[])
             totalInserted += batch.length
             console.log(`Progress: ${totalInserted} / ${chunks.length} chunks inserted (${Math.round((
                 totalInserted / chunks.length) * 100 )}%)`)

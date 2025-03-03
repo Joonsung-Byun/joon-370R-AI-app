@@ -6,20 +6,13 @@
 	import { markedHighlight } from 'marked-highlight'
 	import DOMPurify from 'dompurify'
 	import ChatAppBar from '$lib/components/ChatAppBar.svelte'
-	import FileUploadAside from '$lib/components/FileUploadAside.svelte'
+	import { CircleX } from 'lucide-svelte'
 	import HistoryAside from '$lib/components/HistoryAside.svelte'
 	import hljs from 'highlight.js'
 	import javascript from 'highlight.js/lib/languages/javascript'
 	import typescript from 'highlight.js/lib/languages/typescript'
 	import css from 'highlight.js/lib/languages/css'
 	import TextareaForm from '$lib/components/TextareaForm.svelte'
-
-	if (typeof window !== 'undefined') {
-		window.addEventListener('beforeunload', () => {
-			// localstorage에 myname은 Joonsung 저장하기
-			localStorage.setItem('myname', 'Joonsung')
-		})
-	}
 
 	hljs.registerLanguage('javascript', javascript)
 	hljs.registerLanguage('typescript', typescript)
@@ -51,7 +44,6 @@
 	)
 
 	function addFileName(fileName: string): void {
-		console.log('adding file name')
 		fileNames = [...fileNames, fileName]
 	}
 
@@ -87,6 +79,23 @@
 	function deleteAllChats(): void {
 		chatHistory = []
 	}
+
+			function deleteFileName(fileName: string) {
+				fileNames = fileNames.filter((name) => name !== fileName)
+				fetch('/api/chat', {
+					method: 'DELETE',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						fileName: fileName
+					})
+				})
+				.then((res) => res.json())
+				.then((data) => {
+					console.log(data)
+				})
+			}
 
 	async function handleSubmit(this: HTMLFormElement, event: Event) {
 		event?.preventDefault()
@@ -127,11 +136,13 @@
 				.replace(/<script>/g, '&lt;script&gt;')
 				.replace(/<\/script>/g, '&lt;/script&gt;')
 
-			// put the answer into the chat history with role 'assistant'
+			function removeNewlines(str:string) {
+				return str.replace(/\\n/g, '')
+			}
 
-			chatHistory = [...chatHistory, { role: 'assistant', content: purifiedText }]
+			let finalText = removeNewlines(purifiedText)
 
-			console.log(answerText)
+			chatHistory = [...chatHistory, { role: 'assistant', content: finalText }]
 		} catch (error) {
 			console.error(error)
 		}
@@ -183,7 +194,7 @@
 									{#if response.text === ''}
 										<TypingIndicator />
 									{:else}
-										{@html responseText}
+										{@html (responseText)}
 									{/if}
 								</div>
 							</div>
@@ -207,12 +218,12 @@
 					help you.
 				</p>
 				{#if fileNames.length > 0}
-					<div class="flex flex-wrap items-center gap-4">
+					<div class="flex justify-start flex-wrap items-center gap-7">
 						{#each fileNames as fileName}
-							<div class="flex items-center gap-2">
-								<button type="button" class="btn text-white preset-filled-primary-500">
+							<div class="flex items-center gap-4">
+								<button type="button" class="btn text-white preset-filled-primary-500 relative">
 									<span>{fileName}</span>
-									<!-- <CircleX onclick={() => deleteFileName(fileName)} /> -->
+									<CircleX onclick={() => deleteFileName(fileName)} />
 								</button>
 							</div>
 						{/each}

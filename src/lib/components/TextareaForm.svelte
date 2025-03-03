@@ -1,10 +1,14 @@
 <script lang="ts">
+	import Spinner from "./Spinner.svelte";
+	
 	let examplePrompt = ['Helpful Assistant', 'Sensitive Assistant', 'Dad Assistant'];
 	let { typedExamplePrompt = $bindable(examplePrompt), propsChatHistory, propsDeleteAllChat, fileNames, propsAddFileName } = $props<{ typedExamplePrompt?: string, propsChatHistory?:string[], propsDeleteAllChat?:any, fileNames:string[],propsAddFileName:any}>();
 
 	let fileUploaded = $state(false);
 	let uploadedFileName = $state('');
 	let file:any
+
+	let loading = $state(false);
 
 	function handleFileChange(event: Event) {
 		event.preventDefault();
@@ -19,6 +23,7 @@
 
 	async function handleFileSubmit(event: Event) {
 		event.preventDefault()
+		loading = true;
 		const formData = new FormData();
 		formData.append('file', file);
 		let answer= await fetch('/chat?/uploadFile', {
@@ -35,7 +40,7 @@
 		fileUploaded = false;
 		uploadedFileName = '';
 		file = null;
-
+		loading = false;
 
 		// clear the file input
 		const fileInput = document.querySelector('#fileInput') as HTMLInputElement;
@@ -56,14 +61,17 @@
 
 <div class="mx-auto max-w-[1000px] p-4">
 	<div class="relative">
-		<div id="uploadedFile" class="text-sm text-gray-400">
+		<div id="uploadedFile" class="text-sm text-gray-400 mb-4">
 			{#if fileUploaded}
-				{uploadedFileName} <button class="p-2 bg-primary-300" onclick={handleFileSubmit}>Upload</button>
+				{uploadedFileName} <button class="btn p-2 bg-primary-600 text-black" onclick={handleFileSubmit}>Upload</button>
 			{/if}
 		</div>
+		{#if loading}
+			<Spinner />
+		{/if}
 		<textarea
             bind:value={typedExamplePrompt}
-			class="min-h-[60px] w-full resize-none rounded-xl border-gray-300 bg-transparent p-3 pr-32 text-white focus:border-gray-400 focus:ring-gray-400"
+			class="min-h-[60px] w-full resize-none rounded-xl mt-4 border-gray-300 bg-transparent p-3 pr-32 text-white focus:border-gray-400 focus:ring-gray-400"
 			rows="2"
             name="message"
 		></textarea>

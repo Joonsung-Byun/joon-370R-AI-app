@@ -77,9 +77,17 @@ async function run() {
 
     client = await connectToWeaviate()
 
-    await addCollection()
+    //  await addCollection()
     // await client.collections.delete('Chunks')
     // await getCollectionCount('Chunks')
+
+//     const myCollection = client.collections.get('Chunks')
+
+// const response = await myCollection.data.deleteMany(
+//   myCollection.filter.byProperty('file_name').like('Joonsun_Byun-Resume (1).pdf')
+// )
+
+// console.log(JSON.stringify(response))
 
     const endTime: Date = new Date()
     const elapsedTime: number = endTime.getTime() - startTime.getTime();
