@@ -61,8 +61,13 @@ export const POST = async ({ request }: any) => {
 				const result = await chunksCollection.generate.nearText(
 					currentQuery,
 					{ groupedTask: generatePrompt },
-					{ limit: 3 },
+					{ limit: 2 },
 				)
+
+				for (let object of result.objects) {
+					console.log(JSON.stringify(object.properties, null, 2));
+					console.log(object.generated); // print singlePrompt result
+				  }
 
 				if (!result.generated) {
 					return new Response('I could not find specific information matching your query. Could you rephrase or be more specific? ', { status: 200 })
