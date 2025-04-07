@@ -78,6 +78,7 @@ export const POST = async ({ request }: any) => {
 
 
 			} catch (error) {
+				console.log(error)
 				return new Response('Something went wrong', { status: 500 })
 			}
 		} else {

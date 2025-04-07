@@ -175,9 +175,9 @@
 	<!-- The app bar for this page -->
 	<ChatAppBar bind:selectedSystemPrompt={systemPrompt} />
 
-	<div class="grid w-full xl:grid-cols-[18%_82%]">
-		<HistoryAside />
-		<form onsubmit={handleSubmit} class="m-4 mt-20 flex flex-col rounded-md p-2">
+	<div class=" w-full ">
+		<!-- <HistoryAside /> -->
+		<form onsubmit={handleSubmit} class="m-4 mt-20 flex flex-col rounded-md p-2  px-[50px]">
 			<div class="">
 				<div class="mb-4 flex items-start space-x-2">
 					<Avatar src="/img-tutor-girl.jpg" name="Tutor girl image" />
