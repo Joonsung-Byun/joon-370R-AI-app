@@ -13,10 +13,30 @@
 	import typescript from 'highlight.js/lib/languages/typescript'
 	import css from 'highlight.js/lib/languages/css'
 	import TextareaForm from '$lib/components/TextareaForm.svelte'
+	import Paperclip from 'lucide-svelte/icons/paperclip'
+	import Image from 'lucide-svelte/icons/image'
+	import MessageSquare from 'lucide-svelte/icons/message-square'
+	import Search from 'lucide-svelte/icons/search'
+	import DynamicIcon from '$lib/components/DynamicIcon.svelte'
+	import Brain from 'lucide-svelte/icons/brain'
+	import MainNav from '$lib/components/MainNav.svelte'
 
 	hljs.registerLanguage('javascript', javascript)
 	hljs.registerLanguage('typescript', typescript)
 	hljs.registerLanguage('css', css)
+
+	let mobileMenuOpen = $state(false)
+	
+	function toggleMobileMenu() {
+		mobileMenuOpen = !mobileMenuOpen
+	}
+	
+	const routes = [
+		{ name: "AI RAG Chatbot", href: "/chat", icon: MessageSquare },
+		{ name: "Image Vector Embedding", href: "/images", icon: Image },
+		{ name: "Image Vector Search", href: "/search", icon: Search },
+		{ name: "AI Image Generation", href: "/imageGen", icon: Paperclip }
+	]
 
 	interface PageData {
 		fileNames: string[]
@@ -66,8 +86,6 @@
 	$effect(() => {
 		if (response.text !== '') {
 			;(async () => {
-				// Strip <think> tags from the response text
-				//const cleanedText = stripThinkTags(response.text);
 				const parsedText = await marked.parse(response.text)
 				responseText = DOMPurify.sanitize(parsedText)
 					.replace(/<script>/g, '&lt;script&gt;')
@@ -97,27 +115,6 @@
 				console.log(data)
 			})
 	}
-
-	// if (typeof window !== 'undefined') {
-	// 	window.addEventListener('beforeunload', () => {
-	// 		if(fileNames.length > 0) {
-	// 		fetch('/api/chat', {
-	// 			method: 'DELETE',
-	// 			headers: {
-	// 				'Content-Type': 'application/json'
-	// 			},
-	// 			body: JSON.stringify({
-	// 				fileNames: fileNames,
-	// 				role: 'deleteAll'
-	// 			})
-	// 		})
-	// 			.then((res) => res.json())
-	// 			.then((data) => {
-	// 				console.log(data)
-	// 			})
-	// 		}
-	// 	})
-	// }
 
 	async function handleSubmit(this: HTMLFormElement, event: Event) {
 		event?.preventDefault()
@@ -153,7 +150,6 @@
 			const answerText = (await answer) as string
 
 			const parsedAnswer = await marked.parse(answerText)
-			//const cleanedAnswer = stripThinkTags(parsedAnswer);
 			const purifiedText = DOMPurify.sanitize(parsedAnswer)
 				.replace(/<script>/g, '&lt;script&gt;')
 				.replace(/<\/script>/g, '&lt;/script&gt;')
@@ -171,98 +167,119 @@
 	}
 </script>
 
-<main class="flex min-h-screen w-full flex-col items-center bg-surface-950">
-	<!-- The app bar for this page -->
-	<ChatAppBar bind:selectedSystemPrompt={systemPrompt} />
+<main class="min-h-screen w-full flex flex-col items-center transition-all duration-500 bg-surface-950">
+	<!-- Navigation Bar -->
+	 <MainNav />
 
-	<div class=" w-full ">
-		<!-- <HistoryAside /> -->
-		<form onsubmit={handleSubmit} class="m-4 mt-20 flex flex-col rounded-md p-2  px-[50px]">
-			<div class="">
-				<div class="mb-4 flex items-start space-x-2">
-					<Avatar src="/img-tutor-girl.jpg" name="Tutor girl image" />
-					<div class="assistant-chat mt-2">Hello! How can I help you?</div>
-				</div>
-				<!-- Need to display each chat item here -->
-				{#each chatHistory as chat, i}
-					{#if chat.role === 'user'}
-						<div class="mb-8 ml-auto flex max-w-[70vw] items-start justify-end gap-3">
-							<div class="user-chat mt-2">
-								{chat.content}
-							</div>
-							<div>
-								<Avatar src="/student.png" name="User image" />
-							</div>
-						</div>
-						<!-- this else handles the assistant role chat display -->
-					{:else}
-						<div class="mb-8 mr-auto flex max-w-[70vw] items-start gap-3">
-							<div>
-								<Avatar src="/img-tutor-girl.jpg" name="Tutor girl image" />
-							</div>
-							<div class="assistant-chat mt-2">
-								{@html chat.content}
-							</div>
-						</div>
-					{/if}
-				{/each}
+    <!-- Redesigned Chat Controls -->
+    <div class="w-full max-w-4xl mx-auto px-4 mb-6">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 py-3 px-5 bg-gray-800/50 rounded-lg border border-gray-700">
+            <div class="flex items-center gap-3">
+                <Brain class="w-5 h-5 text-violet-400" />
+                <h2 class="text-lg font-medium text-white">AI Assistant Personality</h2>
+            </div>
+            <div class="w-full sm:w-auto">
+                <select 
+                    bind:value={systemPrompt}
+                    class="w-full px-4 py-2 rounded-md bg-gray-700 text-white border border-gray-600 focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+                >
+                    <option value="Helpful Assistant">Helpful Assistant</option>
+                    <option value="Sensitive Assistant">Sensitive Assistant</option>
+                    <option value="Dad Assistant">Dad Assistant</option>
+                </select>
+            </div>
+        </div>
+    </div>
 
-				{#if response.loading}
-					{#await new Promise((res) => setTimeout(res, 400)) then _}
-						<div class="flex">
-							<div class="flex space-x-2">
-								<Avatar name="tutor girl image" src={'/img-tutor-girl.jpg'} />
-								<div class="assistant-chat max-w-[70vw]">
-									{#if response.text === ''}
-										<TypingIndicator />
-									{:else}
-										{@html responseText}
-									{/if}
-								</div>
-							</div>
-						</div>
-					{/await}
-				{/if}
-				<div class="space-y-4">
-					<hr class="mt-6" />
-					<TextareaForm
-						bind:typedExamplePrompt={examplePrompt}
-						propsChatHistory={chatHistory}
-						propsDeleteAllChat={deleteAllChats}
-						{fileNames}
-						propsAddFileName={addFileName}
-					/>
-				</div>
-			</div>
-			<div class="flex w-full flex-col items-center">
-				<p class="mb-6 text-center text-sm text-surface-500">
-					You can also upload a file for additional context to chat with me. I will do my best to
-					help you.
-				</p>
-				{#if fileNames.length > 0}
-					<div class="flex flex-wrap items-center justify-start gap-7">
-						{#each fileNames as fileName}
-							<div class="flex items-center gap-4">
-								<button type="button" class="btn relative text-white preset-filled-primary-500">
-									<span>{fileName}</span>
-									<CircleX onclick={() => deleteFileName(fileName)} />
-								</button>
-							</div>
-						{/each}
-					</div>
-				{/if}
-			</div>
-		</form>
-	</div>
+    <div class="w-full">
+        <form onsubmit={handleSubmit} class="m-4 mt-4 flex flex-col rounded-md p-2 px-[50px]">
+            <div class="">
+                <div class="mb-4 flex items-start space-x-2">
+                    <Avatar src="/img-tutor-girl.jpg" name="Tutor girl image" />
+                    <div class="assistant-chat mt-2">
+                        Hello! How can I help you?
+                    </div>
+                </div>
+                <!-- Need to display each chat item here -->
+                {#each chatHistory as chat, i}
+                    {#if chat.role === 'user'}
+                        <div class="mb-8 ml-auto flex max-w-[70vw] items-start justify-end gap-3">
+                            <div class="user-chat mt-2">
+                                {chat.content}
+                            </div>
+                            <div>
+                                <Avatar src="/student.png" name="User image" />
+                            </div>
+                        </div>
+                        <!-- this else handles the assistant role chat display -->
+                    {:else}
+                        <div class="mb-8 mr-auto flex max-w-[70vw] items-start gap-3">
+                            <div>
+                                <Avatar src="/img-tutor-girl.jpg" name="Tutor girl image" />
+                            </div>
+                            <div class="assistant-chat mt-2">
+                                {@html chat.content}
+                            </div>
+                        </div>
+                    {/if}
+                {/each}
+
+                {#if response.loading}
+                    {#await new Promise((res) => setTimeout(res, 400)) then _}
+                        <div class="flex">
+                            <div class="flex space-x-2">
+                                <Avatar name="tutor girl image" src={'/img-tutor-girl.jpg'} />
+                                <div class="assistant-chat max-w-[70vw]">
+                                    {#if response.text === ''}
+                                        <TypingIndicator />
+                                    {:else}
+                                        {@html responseText}
+                                    {/if}
+                                </div>
+                            </div>
+                        </div>
+                    {/await}
+                {/if}
+                <div class="space-y-4">
+                    <hr class="mt-6 border-gray-700" />
+                    <TextareaForm
+                        bind:typedExamplePrompt={examplePrompt}
+                        propsChatHistory={chatHistory}
+                        propsDeleteAllChat={deleteAllChats}
+                        {fileNames}
+                        propsAddFileName={addFileName}
+                    />
+                </div>
+            </div>
+            <div class="flex w-full flex-col items-center">
+                <p class="mb-6 text-center text-sm text-surface-500">
+                    You can also upload a file for additional context to chat with me. I will do my best to
+                    help you.
+                </p>
+                {#if fileNames.length > 0}
+                    <div class="flex flex-wrap items-center justify-start gap-7">
+                        {#each fileNames as fileName}
+                            <div class="flex items-center gap-4">
+                                <button type="button" class="btn relative preset-filled-primary-500 text-white">
+                                    <span>{fileName}</span>
+                                    <CircleX onclick={() => deleteFileName(fileName)} />
+                                </button>
+                            </div>
+                        {/each}
+                    </div>
+                {/if}
+            </div>
+        </form>
+    </div>
 </main>
 
 <style lang="postcss">
 	.assistant-chat {
-		@apply rounded-lg border border-slate-50 bg-slate-700 p-3 text-white;
+		@apply rounded-lg border border-slate-50 bg-slate-700 p-3 text-white transition-all duration-300;
 	}
 
 	.user-chat {
-		@apply rounded-lg border border-surface-50 bg-surface-700 p-3 text-white;
+		@apply rounded-lg border border-surface-50 bg-surface-700 p-3 text-white transition-all duration-300;
 	}
 
 	.assistant-chat :global {
@@ -272,14 +289,7 @@
 		ul {
 			@apply ml-4 list-inside list-disc;
 		}
-		/* Code blocks */
-		/* 	pre {
-			@apply my-4 overflow-x-auto rounded-lg bg-surface-700 p-4;
-		}
-		code {
-			@apply rounded bg-surface-100 px-1 py-0.5 font-mono;
-		}
- */
+
 		/* Headers */
 		h1 {
 			@apply mb-4 text-2xl font-bold;

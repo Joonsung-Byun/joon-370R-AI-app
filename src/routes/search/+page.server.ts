@@ -20,7 +20,6 @@ async function connectToWeaviate(): Promise<WeaviateClient> {
 export const actions: Actions = {
     imageSearch: async ({ request }: RequestEvent) => {
         try {
-
         const client = await connectToWeaviate();
         const formData = await request.formData()
         const query = formData.get('query') as string;
