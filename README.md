@@ -3,3 +3,4 @@
 
 For now, RAG is working! Please attatch your pdf files and ask questions to my chatbot.
 Please clone my repo and open it with Docker.
+As of April 15th, image embedding is available. You can insert images and search them with a simple query.
