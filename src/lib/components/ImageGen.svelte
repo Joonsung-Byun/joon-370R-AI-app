@@ -77,6 +77,7 @@
                 },
                 body: JSON.stringify({ 
                     originalImageUrl: selectedImage,
+                    refinementPrompt: refinementPrompt || 'make it nice'
                 })
             });
             
@@ -90,7 +91,7 @@
                 generatedImageUrl = result.imageUrl;
                 selectedImage = result.imageUrl;
                 
-                prompt = `cartoonify ${prompt}`;
+                prompt = refinementPrompt || 'make it nice';
 
                 // Add to history
                 generationHistory = [...generationHistory, {
@@ -206,6 +207,13 @@
                 <!-- Refinement section -->
                 <div class="mt-4 space-y-3 rounded-lg bg-gray-50 p-4">
                     <h3 class="text-lg font-medium">Cartoonify your image</h3>
+                    <p class="text-sm text-gray-600">Add a refinement prompt to enhance your image.</p>
+                    <textarea
+                        bind:value={refinementPrompt}
+                        placeholder="Make it look like a cartoon..."
+                        rows="2"
+                        class="w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 text-black"
+                    ></textarea>
                     <button
                         type="button"
                         onclick={cartoonify}

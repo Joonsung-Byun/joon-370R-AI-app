@@ -27,39 +27,42 @@ export const POST = async ({ request }: any) => {
   const body = await request.json();
   const imagePath = `${body.originalImageUrl}`; 
   const fullPath = path.join(process.cwd(), "static", imagePath);
-
-
   const fileBuffer = await readFile(fullPath);
-  
-  console.log('fileBuffer start', new Date().toISOString())
-  const raw = await replicate.run(
-    "catacolabs/cartoonify:043a7a0bb103cd8ce5c63e64161eae63a99f01028b83aa1e28e53a42d86191d3",
-    { input: { image: fileBuffer } }
-  ) as FileOutput;
-  console.log('fileBuffer done', new Date().toISOString())
-  const imageResponse = await fetch(raw.url());
-  console.log(1)
-  const arrayBuffer = await imageResponse.arrayBuffer();
-    console.log(2)
+
+        console.log(body.refinementPrompt)
+
+  const input = {
+    steps: 50,
+    prompt: body.refinementPrompt,
+    guidance: 7,
+    control_image: fileBuffer,
+    output_format: "jpg",
+    safety_tolerance: 2,
+    prompt_upsampling: false
+  };
+  const output = await replicate.run("black-forest-labs/flux-depth-pro", { input }) as FileOutput;
+
+  console.log(output.url().href);
+
+  const imageResponse = await fetch(output.url());
+
+    const arrayBuffer = await imageResponse.arrayBuffer();
+
   const base64Data = Buffer.from(arrayBuffer).toString("base64");
-    console.log(3)
 
   const dirname = path.dirname(fullPath);               
   const basename = path.basename(fullPath);             
-  const cartoonBasename = `cartoon${basename}`;     
-  console.log(4)    
-  const cartoonFullPath = path.join(dirname, cartoonBasename);
+  const refineBasename = `refine-${basename}`;      
+  const cartoonFullPath = path.join(dirname, refineBasename);
 
   await fs.mkdir(dirname, { recursive: true });
-    console.log(5)
   await fs.writeFile(cartoonFullPath, Buffer.from(base64Data, "base64"));
-    console.log(6)
 
   const imageId = crypto.randomUUID();
 
         return json({
             success: true,
-            imageUrl: `/${cartoonBasename}`,
+            imageUrl: `/${refineBasename}`,
             imageId
         })
    
