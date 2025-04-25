@@ -1,6 +1,12 @@
-# Ollama RAG AI Chatbot!
-![chatbot thumbnail](http://34.219.49.186/wp-content/uploads/2025/03/imageforRAG.png)
+# Joonsung's AI Application
 
-For now, RAG is working! Please attatch your pdf files and ask questions to my chatbot.
-Please clone my repo and open it with Docker.
-As of April 15th, image embedding is available. You can insert images and search them with a simple query.
+## Available AI features
+1. RAG AI chatbot
+2. Image Vector Embedding
+3. Image Vector Search
+4. Image Generation
+
+## How to use?
+1. Clone this Repo and open the Docker Desktop
+2. In the terminal in your IDE, execute npm run localDockerRestart
+3. 
