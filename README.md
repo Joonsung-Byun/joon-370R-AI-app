@@ -7,6 +7,7 @@
 4. Image Generation
 
 ## How to use?
-1. Clone this Repo and open the Docker Desktop
-2. In the terminal in your IDE, execute npm run localDockerRestart
-3. 
+1. Clone this repo and open the Docker Desktop
+2. Open this repo with your IDE and in the terminal, execute npm run localDockerRestart
+3. execute npm run defineEmbeddedFile and npm run configCLIP
+4. execute npm run dev and pull up http://localhost:3700
