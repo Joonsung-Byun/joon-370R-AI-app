@@ -29,31 +29,24 @@ export const POST = async ({ request }: any) => {
   const fullPath = path.join(process.cwd(), "static", imagePath);
   const fileBuffer = await readFile(fullPath);
 
-        console.log(body.refinementPrompt)
 
-  const input = {
-    steps: 50,
-    prompt: body.refinementPrompt,
-    guidance: 7,
-    control_image: fileBuffer,
-    output_format: "jpg",
-    safety_tolerance: 2,
-    prompt_upsampling: false
-  };
-  const output = await replicate.run("black-forest-labs/flux-depth-pro", { input }) as FileOutput;
+  const output = await replicate.run(
+    "catacolabs/cartoonify:f109015d60170dfb20460f17da8cb863155823c85ece1115e1e9e4ec7ef51d3b",
+    {
+      input: {
+        image: fileBuffer,
+      }
+    }
+  )as FileOutput; 
 
-  console.log(output.url().href);
-
-  const imageResponse = await fetch(output.url());
-
-    const arrayBuffer = await imageResponse.arrayBuffer();
-
+const imageResponse = await fetch(output.url().href);
+const arrayBuffer = await imageResponse.arrayBuffer();
   const base64Data = Buffer.from(arrayBuffer).toString("base64");
 
   const dirname = path.dirname(fullPath);               
   const basename = path.basename(fullPath);             
-  const refineBasename = `refine-${basename}`;      
-  const cartoonFullPath = path.join(dirname, refineBasename);
+  const cartoonBasename = `cartoon-${basename}`;      
+  const cartoonFullPath = path.join(dirname, cartoonBasename);
 
   await fs.mkdir(dirname, { recursive: true });
   await fs.writeFile(cartoonFullPath, Buffer.from(base64Data, "base64"));
@@ -62,7 +55,7 @@ export const POST = async ({ request }: any) => {
 
         return json({
             success: true,
-            imageUrl: `/${refineBasename}`,
+            imageUrl: `/${cartoonBasename}`,
             imageId
         })
    

@@ -26,7 +26,7 @@ services:
       ENABLE_MODULES: 'text2vec-ollama,generative-ollama,multi2vec-clip'
       CLUSTER_HOSTNAME: 'node1'
   multi2vec-clip:
-    image: cr.weaviate.io/semitechnologies/multi2vec-clip:sentence-transformers-clip-ViT-B-32
+    image: cr.weaviate.io/semitechnologies/multi2vec-clip:sentence-transformers-clip-ViT-B-32 # docker image that we pull from docker hub and use
     environment:
       ENABLE_CUDA: '0'
 volumes:

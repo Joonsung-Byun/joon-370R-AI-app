@@ -3,6 +3,7 @@
 	import type { ActionData, PageData } from './$types'
 	import type { ActionResult } from '@sveltejs/kit'
 	import MainNav from '$lib/components/MainNav.svelte'
+	import Image from 'lucide-svelte/icons/image'
 	//import { testData } from './test-data';
 
 	type ImageResult = {
@@ -47,9 +48,22 @@
 	}
 </script>
 
-<main class="mx-auto min-h-screen w-full bg-gray-900 text-gray-100">
+<main class="w-full bg-gradient-to-br from-gray-900 to-indigo-950 text-gray-100 min-h-screen">
 	<!-- Navbar -->
+
 	 <MainNav />
+	 <div class="max-w-4xl mx-auto p-4 pt-8">
+		<div class="mb-8">
+			<div class="flex items-center mb-2">
+				<div class="w-10 h-10 bg-violet-800 rounded-lg flex items-center justify-center mr-3">
+					<Image class="w-5 h-5 text-white" />
+				</div>
+				<h1 class="text-3xl font-bold text-white">AI Image Vector Search</h1>
+			</div>
+			<p class="text-gray-400 ml-[3.25rem]">
+				Search for images with Vector Database</p>
+		</div>
+	</div>
 
 	<div class="mx-auto max-w-4xl p-4">
 		<div class="mb-8 rounded-lg border border-gray-700 bg-gray-800 p-6 shadow-lg">

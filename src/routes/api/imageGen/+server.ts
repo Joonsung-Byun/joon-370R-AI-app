@@ -9,13 +9,12 @@ import weaviate from 'weaviate-client'
 import sharp from 'sharp'
 import { writeFileSync, existsSync, mkdirSync } from 'fs'
 import Replicate from 'replicate'
-// import { REPLICATE_API_TOKEN } from '$env/static/private'
+import { REPLICATE_API_TOKEN } from '$env/static/private'
 
 let client: WeaviateClient
 
-//const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 const replicate = new Replicate({
-  auth: "r8_7Csc2pnmDFm63pLuFAmhRMK4s6ulcZU21HsZr",
+  auth: REPLICATE_API_TOKEN,
 })
 
 /**

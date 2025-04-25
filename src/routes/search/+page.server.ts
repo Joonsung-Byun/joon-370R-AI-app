@@ -40,7 +40,7 @@ export const actions: Actions = {
         const searchResults = await collection.query.nearText(query, {
             returnProperties: ["title", "thumbnailPath"],
             limit: 20,
-            returnMetadata: ["distance", "certainty"]
+            returnMetadata: ["distance", "certainty"],
         })
 
         let images: SearchResultImage[] = []

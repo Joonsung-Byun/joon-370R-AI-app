@@ -60,7 +60,7 @@
     }
     
     // Handle image refinement
-    async function cartoonify() {
+    async function refineImage() {
         if (!selectedImage) {
             error = 'Please enter a refinement prompt and select an image';
             return;
@@ -109,7 +109,58 @@
             console.error('Image refinement error:', err);
         } finally {
             isGenerating = false;
-            prompt = '';
+        }
+    }
+
+    // Handle cartoonify
+    async function cartoonify() {
+        if (!selectedImage) {
+            error = 'Please enter a refinement prompt and select an image';
+            return;
+        }
+
+        isGenerating = true;
+        error = null;
+        
+        try {
+            const response = await fetch('/api/cartoonify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    originalImageUrl: selectedImage,
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Error: ${response.statusText}`);
+            }
+            
+            const result = await response.json();
+            
+            if (result.success && result.imageUrl) {
+                generatedImageUrl = result.imageUrl;
+                selectedImage = result.imageUrl;
+                
+                prompt = "cartoonify" + prompt || "cartoonify" + refinementPrompt || 'make it cartoonish';
+
+                // Add to history
+                generationHistory = [...generationHistory, {
+                    prompt: prompt,
+                    imageUrl: result.imageUrl
+                }];
+                
+                // Clear refinement prompt
+                refinementPrompt = '';
+            } else {
+                error = result.message || 'Failed to refine image';
+            }
+        } catch (err) {
+            error = err instanceof Error ? err.message : 'An unexpected error occurred';
+            console.error('Image refinement error:', err);
+        } finally {
+            isGenerating = false;
         }
     }
     
@@ -206,23 +257,32 @@
                 
                 <!-- Refinement section -->
                 <div class="mt-4 space-y-3 rounded-lg bg-gray-50 p-4">
-                    <h3 class="text-lg font-medium">Cartoonify your image</h3>
+                    <h3 class="text-lg font-medium">Refine your image</h3>
                     <p class="text-sm text-gray-600">Add a refinement prompt to enhance your image.</p>
                     <textarea
                         bind:value={refinementPrompt}
-                        placeholder="Make it look like a cartoon..."
+                        placeholder="Make it more colorful and add a rainbow..."
                         rows="2"
                         class="w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 text-black"
                     ></textarea>
                     <button
                         type="button"
-                        onclick={cartoonify}
+                        onclick={refineImage}
                         disabled={isGenerating}
                         class="inline-flex items-center justify-center gap-2 rounded-md bg-secondary-600 px-4 py-2 font-bold text-white transition duration-200 hover:bg-purple-700 disabled:bg-gray-400"
                     >
                         <RefreshCw size={18} />
-                        {isGenerating ? 'Cartoonifying...' : 'Cartoonify Image'}
+                        {isGenerating ? 'Refinying...' : 'Refine Image'}
                     </button>
+                    <button
+                    type="button"
+                    onclick={cartoonify}
+                    disabled={isGenerating}
+                    class="inline-flex items-center justify-center gap-2 rounded-md bg-secondary-600 px-4 py-2 font-bold text-white transition duration-200 hover:bg-purple-700 disabled:bg-gray-400"
+                >
+                    <RefreshCw size={18} />
+                    {isGenerating ? 'Cartoonifing...' : 'Cartoonify Image'}
+                </button>
                 </div>
             </div>
         {/if}
