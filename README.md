@@ -1,5 +1,7 @@
 # Joonsung's AI Application
 
+![RAG-thumbnail](https://github.com/user-attachments/assets/097c775e-ae1a-46f4-ae9b-667665147602)
+
 ## Available AI features
 1. RAG AI chatbot
 2. Image Vector Embedding
