@@ -12,5 +12,8 @@
 3. execute npm run defineEmbeddedFile and npm run configCLIP
 4. execute npm run dev and pull up http://localhost:3700
 
+## Issue?
+If there are issues while you are using my app, please download ollama and pull the llama3.2 model.
+
 
 + To use cartoonifying, please create the .env file and add REPLICATE_API_TOKEN in the file. ex) REPLICATE_API_TOKEN= asdsgjnsdgnjksaklsadlk
