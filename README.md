@@ -11,3 +11,6 @@
 2. Open this repo with your IDE and in the terminal, execute npm run localDockerRestart
 3. execute npm run defineEmbeddedFile and npm run configCLIP
 4. execute npm run dev and pull up http://localhost:3700
+
+
++ To use cartoonifying, please create the .env file and add REPLICATE_API_TOKEN in the file. ex) REPLICATE_API_TOKEN= asdsgjnsdgnjksaklsadlk
